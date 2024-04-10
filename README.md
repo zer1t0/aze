@@ -16,6 +16,12 @@ AZE includes the following commands:
 - **az-tenant-id**: Retrieves the tenant id from tenant domain.
 - **az-whoami**: Shorcut for "az ad signed-in-user show".
 
+## Install
+
+```
+pip install zer1t0-aze
+```
+
 ## Development
 
 To probe in a development scenario:

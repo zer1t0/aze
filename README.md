@@ -8,15 +8,21 @@ capabilities, even if many commands are completely independent from Azure Cli.
 
 ## Commands
 
-AZE includes the following commands:
+AZE includes the following commands, many of them do not require to be
+authenticated in Azure:
 
-- **az-get-login-info**: Retrieve login information about an Azure domain.
-- **az-inspect-token**: Show access token (jwt) payload in json format.
+- **az-brute-usernames**: Validates if a email is Microsoft managed (No auth).
+- **az-brute-passwords**: Validate Azure credentials (No auth).
+- **az-brute-service-subdomains**: Check if any Azure service is using the given
+  subdomains.
+- **az-get-login-info**: Retrieve login information about an Azure domain (No auth).
+- **az-get-tenant-domains**: Discover the domains associated with a tenant (No auth).
+- **az-get-tenant-id**: Retrieves the tenant id from tenant domain (No auth).
+- **az-inspect-token**: Show access token (jwt) payload in json format (No auth).
 - **az-login-with-token**: Adds tokens directly into Azure Cli token cache.
-- **az-tenant-id**: Retrieves the tenant id from tenant domain.
 - **az-whoami**: Shorcut for "az ad signed-in-user show".
 
-## Install
+## Installation
 
 ```
 pip install zer1t0-aze
@@ -24,8 +30,11 @@ pip install zer1t0-aze
 
 ## Development
 
-To probe in a development scenario:
+For development, debugging or testing:
 ```
 cd aze/
 pip install -e .
 ```
+
+## Credits
+- [AADInternals](https://github.com/Gerenios/AADInternals)

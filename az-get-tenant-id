@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from aze.az_tenant_id import main
+from aze.az_get_tenant_id import main
 
 if __name__ == '__main__':
     exit(main())

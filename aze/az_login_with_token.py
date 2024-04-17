@@ -8,11 +8,9 @@ import os
 import codecs
 from . import utils
 from .tenant import resolve_tenant_id
+from .error import AzeError
 
 from msal_extensions import (FilePersistenceWithDataProtection, KeychainPersistence, LibsecretPersistence, FilePersistence, PersistedTokenCache)
-
-class AzeError(Exception):
-    pass
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Login with Azure Tokens")

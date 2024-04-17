@@ -20,10 +20,13 @@ def parse_args():
 def main():
     args = parse_args()
 
-    for domain in read_in.read_text_targets(args.domain):
-        tenant_id = request_tenant_id(domain)
-        if tenant_id:
-            print(tenant_id)
+    try:
+        for domain in read_in.read_text_targets(args.domain):
+            tenant_id = request_tenant_id(domain)
+            if tenant_id:
+                print(tenant_id)
+    except (KeyboardInterrupt, BrokenPipeError):
+        pass
 
 
 def request_tenant_id(domain):

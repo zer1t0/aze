@@ -16,10 +16,14 @@ with open(version_file) as fi:
 
 
 scripts = [
+    "az-brute-passwords",
+    "az-brute-usernames",
+    "az-brute-service-subdomains",
     "az-get-login-info",
+    "az-get-tenant-domains",
+    "az-get-tenant-id",
     "az-inspect-token",
     "az-login-with-token",
-    "az-tenant-id",
     "az-whoami",
 ]
 

@@ -1,2 +1,3 @@
 requests
 msal_extensions
+dnspython

@@ -9,18 +9,17 @@ def parse_args():
     )
     parser.add_argument(
         "domain",
-        help="Domain to search Azure login information",
-    )
-    parser.add_argument(
-        "-u", "--user",
-        help="User to use in requests (do not include the domain part)",
-        default="nn"
+        help="Domain or username to search Azure login information",
     )
     return parser.parse_args()
 
 def main():
     args = parse_args()
-    username = "{}@{}".format(args.user, args.domain)
+    domain = args.domain
+    if "@" in domain:
+        username = domain
+    else:
+        username = "nn@{}".format(domain)
 
     r1 = get_userrealm_v1(username)
     # print(json.dumps(r1))

@@ -38,3 +38,6 @@ pip install -e .
 
 ## Credits
 - [AADInternals](https://github.com/Gerenios/AADInternals)
+- [MicroBurst](https://github.com/NetSPI/MicroBurst)
+- [MSOLSpray](https://github.com/dafthack/MSOLSpray)
+- [o365creeper](https://github.com/LMGsec/o365creeper)

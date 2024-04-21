@@ -9,8 +9,7 @@ import codecs
 from . import utils
 from .tenant import resolve_tenant_id
 from .error import AzeError
-
-from msal_extensions import (FilePersistenceWithDataProtection, KeychainPersistence, LibsecretPersistence, FilePersistence, PersistedTokenCache)
+from .tokens import load_token_cache
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Login with Azure Tokens")
@@ -64,7 +63,8 @@ def main():
         )
         t_infos = [at_info]
 
-    store_tokens(t_infos)
+    token_cache = load_token_cache()
+    store_tokens(t_infos, token_cache)
     set_subscriptions(t_infos[0], resp_subscriptions)
 
 
@@ -193,19 +193,14 @@ def request_tokens_from_refresh(tenant_id, refresh_token):
 
     return resp.json()
 
-def store_tokens(tokens_info):
+
+def store_tokens(tokens_info, token_cache):
     if not tokens_info:
         return
 
     tokens_events = [create_event_from_token_info(t_info) for t_info in tokens_info]
-    token_cache = load_persisted_token_cache(
-        "{}/.azure/msal_token_cache.json".format(os.environ["HOME"]),
-        False
-    )
     for t_event in tokens_events:
         token_cache.add(t_event)
-
-
 
 
 class TokenInformation:
@@ -307,27 +302,4 @@ def create_event_from_token_info(t_info):
         # "params": {},
         # "data": {},
     }
-
-def load_persisted_token_cache(location, encrypt):
-    persistence = build_persistence(location, encrypt)
-    return PersistedTokenCache(persistence)
-
-def build_persistence(location, encrypt):
-    if encrypt:
-        if sys.platform.startswith('win'):
-            return FilePersistenceWithDataProtection(location)
-        if sys.platform.startswith('darwin'):
-            return KeychainPersistence(
-                location,
-                "my_service_name",
-                "my_account_name"
-            )
-        if sys.platform.startswith('linux'):
-            return LibsecretPersistence(
-                location,
-                schema_name="my_schema_name",
-                attributes={"my_attr1": "foo", "my_attr2": "bar"}
-            )
-    else:
-        return FilePersistence(location)
 

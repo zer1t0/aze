@@ -20,6 +20,7 @@ authenticated in Azure:
 - **az-get-tenant-id**: Retrieves the tenant id from tenant domain (No auth).
 - **az-inspect-token**: Show access token (jwt) payload in json format (No auth).
 - **az-login-with-token**: Adds tokens directly into Azure Cli token cache.
+- **az-search-token-in-cache**: Retrieve items from token cache based on the filters.
 - **az-whoami**: Shorcut for "az ad signed-in-user show".
 
 ## Installation

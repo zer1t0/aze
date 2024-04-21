@@ -24,6 +24,7 @@ scripts = [
     "az-get-tenant-id",
     "az-inspect-token",
     "az-login-with-token",
+    "az-search-token-in-cache",
     "az-whoami",
 ]
 

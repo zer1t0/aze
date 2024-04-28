@@ -3,6 +3,7 @@ from msal_extensions import FilePersistenceWithDataProtection,\
     KeychainPersistence, LibsecretPersistence, FilePersistence,\
     PersistedTokenCache
 import os
+from .error import AzeError
 
 CredentialType = PersistedTokenCache.CredentialType
 
@@ -13,6 +14,37 @@ CredentialType = PersistedTokenCache.CredentialType
 #         ID_TOKEN = "IdToken"
 #         APP_METADATA = "AppMetadata"
 
+def search_token_for_subscription(subscription, scopes, token_cache=None):
+    token_cache = token_cache or load_token_cache()
+
+    accounts = search_token_in_cache(
+        CredentialType.ACCOUNT,
+        query={
+            "username": subscription["user"]["name"],
+            "realm": subscription["tenantId"],
+        },
+        token_cache=token_cache,
+    )
+    if not accounts:
+        raise AzeError("Unable to find account for subscription")
+
+    account = accounts[0]
+
+    access_tokens = search_token_in_cache(
+        CredentialType.ACCESS_TOKEN,
+        query={"home_account_id": account["home_account_id"]},
+        scopes=scopes,
+        token_cache=token_cache,
+    )
+
+    if not access_tokens:
+        raise AzeError(
+            "Unable to find Access Token for account '{}' with scope '{}'".format(
+                account["home_account_id"],
+                ", ".join(scopes),
+        ))
+
+    return access_tokens[0]
 
 def search_token_in_cache(
         token_type,

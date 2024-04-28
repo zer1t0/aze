@@ -16,6 +16,7 @@ with open(version_file) as fi:
 
 
 scripts = [
+    "az-brute-add-app-secret",
     "az-brute-passwords",
     "az-brute-usernames",
     "az-brute-service-subdomains",
@@ -25,6 +26,7 @@ scripts = [
     "az-inspect-token",
     "az-list-subscriptions",
     "az-list-role-assignment",
+    "az-list-sp-app-role-assignment",
     "az-login-with-token",
     "az-search-token-in-cache",
     "az-whoami",

@@ -253,9 +253,11 @@ class TokenInformation:
 
         # Seems that management.azure.com is the new endpoint
         # but still not used by Azure Cli, so we replace it
-        # for the old endpoint to make it compatible
-        if endpoint == "https://management.azure.com/":
-            return "https://management.core.windows.net/"
+        # with the old endpoint to make it compatible
+        if endpoint.startswith("https://management.azure.com"):
+            endpoint = "https://management.core.windows.net/"
+        if not endpoint.endswith("/"):
+            endpoint += "/"
         return endpoint
 
 

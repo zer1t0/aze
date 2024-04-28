@@ -4,6 +4,26 @@ from msal_extensions import FilePersistenceWithDataProtection,\
     PersistedTokenCache
 import os
 
+CredentialType = PersistedTokenCache.CredentialType
+
+# class CredentialType:
+#         ACCESS_TOKEN = "AccessToken"
+#         REFRESH_TOKEN = "RefreshToken"
+#         ACCOUNT = "Account"  # Not exactly a credential type, but we put it here
+#         ID_TOKEN = "IdToken"
+#         APP_METADATA = "AppMetadata"
+
+
+def search_token_in_cache(
+        token_type,
+        query=None,
+        scopes=None,
+        token_cache=None
+):
+    token_cache = token_cache or load_token_cache()
+    return token_cache.find(token_type, query=query, target=scopes)
+
+
 def load_token_cache(encrypted=False):
     azure_dir = os.path.join(os.environ["HOME"], ".azure")
     extension = "json" if not encrypted else "bin"

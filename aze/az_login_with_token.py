@@ -5,11 +5,12 @@ import json
 import time
 import configparser
 import os
-import codecs
 from . import utils
 from .tenant import resolve_tenant_id
 from .error import AzeError
 from .tokens import load_token_cache
+from . import arm_api
+from . import profile
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Login with Azure Tokens")
@@ -42,8 +43,11 @@ def main():
     if access_tokens:
         t_infos = [TokenInformation(at) for at in access_tokens]
         for t_info in t_infos:
-            if t_info["aud"] == "https://management.core.windows.net/":
-                resp_subscriptions = request_subscriptions(t_info.access_token)
+            if t_info.endpoint == "https://management.core.windows.net/"\
+               or t_info["aud"] == "https://management.azure.com/":
+                resp_subscriptions = arm_api.list_subscriptions(
+                    t_info.access_token
+                )
                 break
     elif refresh_token:
         if not tenant:
@@ -80,12 +84,13 @@ AZURE_CLOUD = "AzureCloud"
 
 def store_profiles(at_info, resp_subscriptions):
     tenant_id = at_info["tid"]
-    username = at_info["upn"]
-    user_type = at_info["idtyp"]
+    username = at_info.username
 
-    azure_profiles_path = "{}/.azure/azureProfile.json".format(os.environ["HOME"])
-    with codecs.open(azure_profiles_path, 'r', 'utf-8-sig') as fi:
-        profile_data = json.load(fi)
+    # To use tokens user type must be "user" since "servicePrincipal"
+    # is reserved to use the secrets store
+    user_type = "user"
+
+    profile_data = profile.load_profile()
 
     cached_subscriptions = {}
     for sub in profile_data["subscriptions"]:
@@ -107,7 +112,7 @@ def store_profiles(at_info, resp_subscriptions):
                 "id": sub_id,
                 "name": rsub["displayName"],
                 "state": state,
-                "isDefault": s_is_default,
+                "isDefault": is_default,
                 "tenantId": tenant_id,
                 "environmentName": AZURE_CLOUD,
                 "user": {
@@ -137,9 +142,7 @@ def store_profiles(at_info, resp_subscriptions):
     ][0]
     profile_data["subscriptions"] = list(cached_subscriptions.values())
 
-    with codecs.open(azure_profiles_path, 'w', 'utf-8-sig') as fo:
-        json.dump(profile_data, fo)
-
+    profile.store_profile(profile_data)
     return default_subscription_id
 
 def set_default_subscription_id(default_subscription_id):
@@ -151,24 +154,6 @@ def set_default_subscription_id(default_subscription_id):
     with open(config_file, 'w') as fo:
         config.write(fo)
 
-
-def request_subscriptions(access_token):
-    headers = {
-        "Authorization": "Bearer {}".format(access_token)
-    }
-    resp = requests.get(
-        "https://management.azure.com/subscriptions?api-version=2019-11-01",
-        headers=headers,
-        # verify=False,
-    )
-
-    if resp.status_code != 200:
-        raise AzeError(
-            "Unable to get subscriptions response: error code {}".format(
-                resp.status_code
-        ))
-
-    return resp.json()["value"]
 
 AZCLI_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
 
@@ -229,8 +214,8 @@ class TokenInformation:
             self.client_info = client_info
         else:
             self.client_info = base64.b64encode(json.dumps({
-                "uid": self._info["oid"],
-                "utid": self._info["tid"],
+                "uid": self.account_id,
+                "utid": self.tenant_id,
             }).encode()).decode()
 
         now = int(time.time())
@@ -249,25 +234,53 @@ class TokenInformation:
         return self._info[key]
 
     @property
-    def user_id(self):
-        return self._info["oid"]
+    def account_id(self):
+        if self._info["idtyp"] == "app":
+            return self._info["appid"]
+        else:
+            return self._info["oid"]
+
+    @property
+    def username(self):
+        if self._info["idtyp"] == "app":
+            return self._info["appid"]
+        else:
+            return self._info["upn"]
+
+    @property
+    def endpoint(self):
+        endpoint = self._info["aud"]
+
+        # Seems that management.azure.com is the new endpoint
+        # but still not used by Azure Cli, so we replace it
+        # for the old endpoint to make it compatible
+        if endpoint == "https://management.azure.com/":
+            return "https://management.core.windows.net/"
+        return endpoint
+
 
     @property
     def tenant_id(self):
         return self._info["tid"]
+
+    def get(self, *args, **kwargs):
+        return self._info.get(*args, **kwargs)
 
     @property
     def scopes(self):
         if self._scope:
             scopes = self._scope.split()
         else:
-            endpoint = self._info["aud"]
+            endpoint = self.endpoint
             scopes = ["{}/.default".format(endpoint)]
-            for scope in self._info["scp"].split():
-                if scope in ["email", "profile", "openid"]:
-                    scopes.append(scope)
-                else:
-                    scopes.append("{}/{}".format(endpoint, scope))
+            try:
+                for scope in self._info["scp"].split():
+                    if scope in ["email", "profile", "openid"]:
+                        scopes.append(scope)
+                    else:
+                        scopes.append("{}/{}".format(endpoint, scope))
+            except KeyError:
+                pass
         return scopes
 
 
@@ -288,8 +301,10 @@ def create_event_from_token_info(t_info):
     if t_info.id_token:
         resp["id_token"] = t_info.id_token
 
-    client_id = t_info["appid"]
-    username = t_info["upn"]
+    # No matter what is t_info["appid"] since we tell the Azure Cli
+    # to use the token as it belongs to it
+    client_id = AZCLI_ID
+    username = t_info.username
     tenant_id = t_info.tenant_id
     return {
         "username": username,

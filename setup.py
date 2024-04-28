@@ -23,6 +23,8 @@ scripts = [
     "az-get-tenant-domains",
     "az-get-tenant-id",
     "az-inspect-token",
+    "az-list-subscriptions",
+    "az-list-role-assignment",
     "az-login-with-token",
     "az-search-token-in-cache",
     "az-whoami",

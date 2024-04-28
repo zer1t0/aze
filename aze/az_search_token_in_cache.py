@@ -1,5 +1,5 @@
 import argparse
-from .tokens import load_token_cache
+from .tokens import search_token_in_cache, CredentialType
 import json
 
 def parse_args():
@@ -53,13 +53,6 @@ def parse_args():
     return parser.parse_args()
 
 
-# class CredentialType:
-#         ACCESS_TOKEN = "AccessToken"
-#         REFRESH_TOKEN = "RefreshToken"
-#         ACCOUNT = "Account"  # Not exactly a credential type, but we put it here
-#         ID_TOKEN = "IdToken"
-#         APP_METADATA = "AppMetadata"
-
 def main():
     args = parse_args()
     client_id = args.client_id
@@ -67,20 +60,18 @@ def main():
     realm = args.realm
     home_id = None
 
-    token_cache = load_token_cache()
-
     scopes = args.scope
 
     if args.refresh:
-        token_type = token_cache.CredentialType.REFRESH_TOKEN
+        token_type = CredentialType.REFRESH_TOKEN
     elif args.account:
-        token_type = token_cache.CredentialType.ACCOUNT
+        token_type = CredentialType.ACCOUNT
     elif args.id:
-        token_type = token_cache.CredentialType.ID_TOKEN
+        token_type = CredentialType.ID_TOKEN
     elif args.metadata:
-        token_type = token_cache.CredentialType.APP_METADATA
+        token_type = CredentialType.APP_METADATA
     else:
-        token_type = token_cache.CredentialType.ACCESS_TOKEN
+        token_type = CredentialType.ACCESS_TOKEN
 
 
     query = {}
@@ -93,9 +84,9 @@ def main():
     if home_id:
         query["home_account_id"] = home_id
 
-    for entry in token_cache.find(
+    for entry in search_token_in_cache(
             token_type,
             query=query,
-            target=scopes,
+            scopes=scopes,
     ):
         print(json.dumps(entry))

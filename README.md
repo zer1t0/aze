@@ -16,15 +16,17 @@ authenticated (marked with Auth) in Azure:
 - **az-brute-passwords**: Validate Azure credentials (No auth).
 - **az-brute-service-subdomains**: Check if any Azure service is using the given
   subdomains (No auth).
+- **az-brute-blob-containers**: Discover public containers in Azure blobs (No auth).
 - **az-get-login-info**: Retrieve login information about an Azure domain (No auth).
 - **az-get-tenant-domains**: Discover the domains associated with a tenant (No auth).
 - **az-get-tenant-id**: Retrieves the tenant id from tenant domain (No auth).
 - **az-inspect-token**: Show access token (jwt) payload in json format (No auth).
+- **az-list-blobs**: List blobs of container from URL (No auth).
 - **az-list-role-assignment**: List roles without requiring a graph access token (Auth).
-- **az-login-with-token**: Adds tokens directly into Azure Cli token cache.
-- **az-list-sp-app-role-assignment**: List App roles for a service principal.
+- **az-login-with-token**: Injects tokens directly into Azure Cli token cache.
+- **az-list-sp-app-role-assignment**: List App roles for a service principal (Auth).
 - **az-search-token-in-cache**: Retrieve items from token cache based on the filters.
-- **az-whoami**: Shorcut for "az ad signed-in-user show".
+- **az-whoami**: Shorcut for "az ad signed-in-user show" (Auth).
 
 ## Installation
 
@@ -45,3 +47,4 @@ pip install -e .
 - [MicroBurst](https://github.com/NetSPI/MicroBurst)
 - [MSOLSpray](https://github.com/dafthack/MSOLSpray)
 - [o365creeper](https://github.com/LMGsec/o365creeper)
+- [OffensiveCloud](https://github.com/lutzenfried/OffensiveCloud)

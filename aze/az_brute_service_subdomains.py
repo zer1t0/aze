@@ -148,11 +148,11 @@ def main():
     tcp=args.tcp
 
     if args.permutations:
-        permutations = read_in.read_text_targets(
+        permutations = list(read_in.read_text_targets(
             args.permutations,
             use_stdin_if_none=False,
             use_stdin_if_minus=False,
-        )
+        ))
     elif args.no_permutations:
         permutations = []
     else:

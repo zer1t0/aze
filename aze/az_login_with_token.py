@@ -42,13 +42,6 @@ def main():
     resp_subscriptions = []
     if access_tokens:
         t_infos = [TokenInformation(at) for at in access_tokens]
-        for t_info in t_infos:
-            if t_info.endpoint == "https://management.core.windows.net/"\
-               or t_info["aud"] == "https://management.azure.com/":
-                resp_subscriptions = arm_api.list_subscriptions(
-                    t_info.access_token
-                )
-                break
     elif refresh_token:
         if not tenant:
             utils.eprint("--tenant required when using refresh token")
@@ -66,6 +59,14 @@ def main():
             ext_expires_in=tokens["ext_expires_in"],
         )
         t_infos = [at_info]
+
+    for t_info in t_infos:
+        if t_info.endpoint == "https://management.core.windows.net/"\
+           or t_info["aud"] == "https://management.azure.com/":
+            resp_subscriptions = arm_api.list_subscriptions(
+                t_info.access_token
+            )
+            break
 
     token_cache = load_token_cache()
     store_tokens(t_infos, token_cache)
@@ -173,7 +174,11 @@ def request_tokens_from_refresh(tenant_id, refresh_token):
     resp = requests.post(url, data)
     if resp.status_code != 200:
         raise AzeError(
-            "Unable to get access token: error code {}".format(resp.status_code)
+            "Unable to get access token, error {}: {} - {}".format(
+                resp.status_code,
+                resp.json().get("error", ""),
+                resp.json().get("error_description", "")
+            )
         )
 
     return resp.json()
@@ -210,6 +215,17 @@ class TokenInformation:
         self.id_token = id_token
         self.refresh_token = refresh_token
 
+        self.tenant_id = self._info["tid"]
+
+        if "upn" in self._info:
+            self.username = self._info["upn"]
+            self.account_id = self._info["oid"]
+        else:
+            self.username = self._info["appid"]
+            self.account_id = self._info["appid"]
+
+        self.endpoint = aud_to_endpoint(self._info["aud"])
+
         if client_info:
             self.client_info = client_info
         else:
@@ -233,38 +249,6 @@ class TokenInformation:
     def __getitem__(self,key):
         return self._info[key]
 
-    @property
-    def account_id(self):
-        if self._info["idtyp"] == "app":
-            return self._info["appid"]
-        else:
-            return self._info["oid"]
-
-    @property
-    def username(self):
-        if self._info["idtyp"] == "app":
-            return self._info["appid"]
-        else:
-            return self._info["upn"]
-
-    @property
-    def endpoint(self):
-        endpoint = self._info["aud"]
-
-        # Seems that management.azure.com is the new endpoint
-        # but still not used by Azure Cli, so we replace it
-        # with the old endpoint to make it compatible
-        if endpoint.startswith("https://management.azure.com"):
-            endpoint = "https://management.core.windows.net/"
-        if not endpoint.endswith("/"):
-            endpoint += "/"
-        return endpoint
-
-
-    @property
-    def tenant_id(self):
-        return self._info["tid"]
-
     def get(self, *args, **kwargs):
         return self._info.get(*args, **kwargs)
 
@@ -285,7 +269,14 @@ class TokenInformation:
                 pass
         return scopes
 
+def aud_to_endpoint(aud):
+    # Seems that management.azure.com is the new endpoint
+    # but still not used by Azure Cli, so we replace it
+    # with the old endpoint to make it compatible
+    if aud.startswith("https://management.azure.com"):
+        return "https://management.core.windows.net/"
 
+    return aud
 
 def create_event_from_token_info(t_info):
     scopes = t_info.scopes

@@ -1,4 +1,4 @@
-from .request_az import request_az_api
+from .request_az import request_az_api, request_az_api_values_until_no_more
 
 
 def add_secret_to_application(access_token, app_id):
@@ -25,3 +25,32 @@ def list_sp_app_role_asignments(access_token, sp_id):
         access_token,
     )["value"]
 
+def list_user_memberof(access_token, user):
+    return request_az_api(
+        "https://graph.microsoft.com/v1.0/users/{}/memberOf".format(user),
+        access_token,
+    )["value"]
+
+def show_ad_role(access_token, role_id):
+    return request_az_api(
+        "https://graph.microsoft.com/v1.0/directoryRoles/{}".format(role_id),
+        access_token,
+    )
+
+def show_administrative_unit(access_token, au):
+    return request_az_api(
+        "https://graph.microsoft.com/v1.0/directory/administrativeUnits/{}".format(au),
+        access_token,
+    )
+
+def list_administrative_unit_members(access_token, au):
+    return request_az_api_values_until_no_more(
+        "https://graph.microsoft.com/v1.0/directory/administrativeUnits/{}/members".format(au),
+        access_token,
+    )
+
+def list_administrative_unit_role_members(access_token, au):
+    return request_az_api_values_until_no_more(
+        "https://graph.microsoft.com/v1.0/directory/administrativeUnits/{}/scopedRoleMembers".format(au),
+        access_token,
+    )

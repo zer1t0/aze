@@ -25,12 +25,17 @@ scripts = [
     "az-get-tenant-domains",
     "az-get-tenant-id",
     "az-inspect-token",
+    "az-list-administrative-unit-members",
+    "az-list-administrative-unit-role-members",
     "az-list-blobs",
     "az-list-subscriptions",
     "az-list-role-assignment",
     "az-list-sp-app-role-assignment",
+    "az-list-user-memberof",
     "az-login-with-token",
     "az-search-token-in-cache",
+    "az-show-ad-role",
+    "az-show-administrative-unit",
     "az-whoami",
 ]
 

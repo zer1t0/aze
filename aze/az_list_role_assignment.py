@@ -3,7 +3,6 @@ from . import arm_api
 import json
 from . import profile
 from .tokens import search_token_for_subscription
-from . import arm_api
 
 def parse_args():
     parser = argparse.ArgumentParser(

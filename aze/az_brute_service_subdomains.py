@@ -20,6 +20,7 @@ SERVICE_DOMAIN_NAMES =  {
 	"blob.core.windows.net": "Storage Accounts - Blobs",
 	"queue.core.windows.net": "Storage Accounts - Queues",
 	"table.core.windows.net": "Storage Accounts - Tables",
+    "dfs.core.windows.net": "Storage Accounts - Data Lake",
 	"mail.protection.outlook.com": "Email",
 	"sharepoint.com": "SharePoint",
 	"redis.cache.windows.net": "Databases-Redis",
@@ -45,13 +46,17 @@ SERVICE_KEYWORDS =  {
     "blob": ["blob.core.windows.net"],
 	"queue": ["queue.core.windows.net"],
     "table": ["table.core.windows.net"],
-    "lake": ["azuredatalakestore.net"],
+    "lake": [
+        "azuredatalakestore.net",
+        "dfs.core.windows.net",
+    ],
     "storage": [
         "file.core.windows.net",
         "blob.core.windows.net",
         "queue.core.windows.net",
         "table.core.windows.net",
-        "azuredatalakestore.net"
+        "azuredatalakestore.net",
+        "dfs.core.windows.net",
     ],
     "email": ["mail.protection.outlook.com"],
     "mail": ["mail.protection.outlook.com"],

@@ -5,7 +5,7 @@ def resolve_tenant_id(tenant):
     if utils.is_valid_uuid(tenant):
         return tenant
 
-    return request_tenant_id(domain)
+    return request_tenant_id(tenant)
 
 def request_tenant_id(domain):
     url = "https://login.microsoftonline.com/{}/.well-known/openid-configuration".format(domain)

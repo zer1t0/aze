@@ -17,11 +17,16 @@ CredentialType = PersistedTokenCache.CredentialType
 def search_token_for_subscription(subscription, scopes, token_cache=None):
     token_cache = token_cache or load_token_cache()
 
+    if subscription["id"] == subscription["tenantId"]:
+        realm = subscription["id"]
+    else:
+        realm = "organizations"
+
     accounts = search_token_in_cache(
         CredentialType.ACCOUNT,
         query={
             "username": subscription["user"]["name"],
-            "realm": subscription["tenantId"],
+            "realm": realm,
         },
         token_cache=token_cache,
     )

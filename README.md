@@ -12,8 +12,8 @@ AZE includes the following commands, many of them require to be
 authenticated (marked with Auth) in Azure:
 
 - **az-brute-add-app-secret**: Try to add a secret to all applications (Auth).
-- **az-brute-usernames**: Validates if a email is Microsoft managed (No auth).
 - **az-brute-passwords**: Validate Azure credentials (No auth).
+- **az-brute-usernames**: Validates if a email is Microsoft managed (No auth).
 - **az-brute-service-subdomains**: Check if any Azure service is using the given
   subdomains (No auth).
 - **az-brute-blob-containers**: Discover public containers in Azure blobs (No auth).
@@ -22,11 +22,16 @@ authenticated (marked with Auth) in Azure:
 - **az-get-tenant-id**: Retrieves the tenant id from tenant domain (No auth).
 - **az-inspect-token**: Show access token (jwt) payload in json format (No auth).
 - **az-list-blobs**: List blobs of container from URL (No auth).
-- **az-list-role-assignment**: List roles without requiring a graph access token (Auth).
+- **az-list-administrative-unit-members**: List Administrative Unit members (Auth).
+- **az-list-administrative-unit-role-members**: List Administrative Unit scoped role members (Auth).
+- **az-list-role-assignment**: List roles without requiring a graph access token. (Auth)
+- **az-list-sp-app-role-assignment**: List App roles for a service principal. (Auth)
+- **az-list-user-memberof**: List membership of user, both groups and administrative units. (Auth)
 - **az-login-with-token**: Injects tokens directly into Azure Cli token cache.
-- **az-list-sp-app-role-assignment**: List App roles for a service principal (Auth).
 - **az-search-token-in-cache**: Retrieve items from token cache based on the filters.
-- **az-whoami**: Shorcut for "az ad signed-in-user show" (Auth).
+- **az-show-ad-role**: Show Entra ID role. (Auth)
+- **az-show-administrative-unit**: Show Administrative Unit. (Auth)
+- **az-whoami**: Shorcut for "az ad signed-in-user show". (Auth)
 
 ## Installation
 

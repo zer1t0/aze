@@ -44,7 +44,8 @@ def main():
             ))
             resp = graph_api.add_secret_to_application(access_token_raw, app["id"])
             resp["app"] = {
-                "id": app["id"],
+                "oid": app["id"],
+                "appId": app["appId"],
                 "displayName": app["displayName"]
             }
             print(json.dumps(resp, indent=4))

@@ -11,7 +11,7 @@ def request_az_api_values_until_no_more(url, access_token):
 
     return values
 
-def request_az_api(url, access_token, method="GET", json=None):
+def request_az_api(url, access_token, method="GET", json=None, params=None):
     headers = {
         "Authorization": "Bearer {}".format(access_token)
     }
@@ -25,6 +25,7 @@ def request_az_api(url, access_token, method="GET", json=None):
         url,
         headers=headers,
         json=json,
+        params=params,
         # verify=False,
     )
 

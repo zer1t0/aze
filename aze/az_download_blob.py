@@ -6,18 +6,18 @@ from . import profile
 from . import tokens
 from . import storage_api
 from .error import AzeRequestError
+import sys
 
 logger = logging.getLogger("aze")
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="List blobs or containers from URL."
+        description="Download blob from URL.",
     )
 
     parser.add_argument(
         "url",
-        nargs="*",
-        help="Specify blob container url or files. If None then stdin is used"
+        help="Specify blob file url"
     )
 
     parser.add_argument(
@@ -51,13 +51,9 @@ def main():
     else:
         access_token = None
 
-    for url in read_in.read_text_targets(args.url):
-        try:
-            for blob in storage_api.list_blobs(url, access_token):
-                print(json.dumps(blob))
-        except AzeRequestError as e:
-            logging.warning("{}".format(e))
-
+    url = args.url
+    blob_content = storage_api.download_blob(url, access_token)
+    sys.stdout.buffer.write(blob_content)
 
 def init_log(verbosity=0, log_file=None):
 

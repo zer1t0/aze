@@ -1,6 +1,8 @@
 import sys
 from uuid import UUID
 
+AZCLI_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
+
 def add_b64_padding(data):
     padding_len = (4 - (len(data) % 4)) % 4
     return data + "=" * padding_len

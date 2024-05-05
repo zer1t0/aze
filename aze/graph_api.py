@@ -19,9 +19,17 @@ def list_applications(access_token):
         access_token,
     )["value"]
 
-def list_sp_app_role_asignments(access_token, sp_id):
+def list_sp_app_role_asignments(access_token, sp_id=None, app_id=None):
+    if sp_id:
+        url = "https://graph.microsoft.com/v1.0/servicePrincipals/{}/appRoleAssignments".format(sp_id)
+    elif app_id:
+        url = "https://graph.microsoft.com/v1.0/servicePrincipals(appId='{}')/appRoleAssignments".format(app_id)
+
+    else:
+        raise ValueError("Must provide sp_id or app_id")
+
     return request_az_api(
-        "https://graph.microsoft.com/v1.0/servicePrincipals/{}/appRoleAssignments".format(sp_id),
+        url,
         access_token,
     )["value"]
 

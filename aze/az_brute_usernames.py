@@ -4,13 +4,18 @@ import requests
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
+from time import sleep
 import logging
 import sys
 from . import read_in
 
 USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0"
 TIMEOUT = 5
+DELAY = 0
 WORKERS_DEFAULT = 10
+DEFAULT_DELAY = 0
+STOP_ATTACK = 0
+STOP_WHEN_THROTTLE = 1
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +51,23 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--delay",
+        default=DEFAULT_DELAY,
+        type=int,
+        help="Delay between requests in seconds. Default: {}".format(DEFAULT_DELAY),
+    )
+
+    parser.add_argument(
         "-w", "--workers",
         default=10,
         type=int,
         help="Number of concurrent workers"
+    )
+
+    parser.add_argument(
+        "--stop-on-error",
+        action="store_true",
+        help="Stop if throttle error is returned",
     )
 
     parser.add_argument(
@@ -69,10 +87,15 @@ def main():
 
     global TIMEOUT
     global USER_AGENT
+    global DELAY
+    global STOP_WHEN_THROTTLE
 
     TIMEOUT = args.timeout
     USER_AGENT = args.user_agent
+    DELAY = args.delay
+    STOP_WHEN_THROTTLE = args.stop_on_error
     domain = args.domain
+    
 
     pool = ThreadPoolExecutor(args.workers)
     print_lock = Lock()
@@ -99,9 +122,13 @@ def init_log(verbosity=0):
 
 
 def verify_email(email, print_lock):
+    if STOP_ATTACK:
+        return
     if is_valid_email(email):
         with print_lock:
-            print(email)
+            print(email, flush=True)
+    if DELAY:
+        sleep(DELAY)
 
 def is_valid_email(email):
     resp = request_getcredentialtype(email)
@@ -111,7 +138,10 @@ def is_valid_email(email):
     is_valid = jresp["IfExistsResult"] == 0
 
     if is_valid and jresp["ThrottleStatus"] != 0:
-        logger.info("Throttle detected for %s, email may not be valid", email)
+        logger.warn("Throttle detected for %s, email may not be valid", email)
+        if STOP_WHEN_THROTTLE:
+            global STOP_ATTACK
+            STOP_ATTACK = 1
         is_valid = False
 
     return is_valid
